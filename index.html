@@ -34,6 +34,12 @@ transform: translateX(-50%);
 text-align: center;
 z-index: 100;
 }
+
+@media (max-width: 768px) {
+#company-header {
+top: 20px;
+}
+}
 #company-name {
 font-family: "Orbitron", sans-serif;
 font-size: 42px;
@@ -253,19 +259,21 @@ transform: translateY(-50%);
 }
 @media (max-width: 768px) {
 #company-name {
-font-size: 28px;
-letter-spacing: 4px;
+font-size: 26px;
+letter-spacing: 3px;
 }
 #tagline {
-font-size: 12px;
-letter-spacing: 1.5px;
+font-size: 11px;
+letter-spacing: 1px;
+margin-top: 8px;
 }
 #frontier-text {
-font-size: 11px;
-margin-top: 10px;
+font-size: 10px;
+margin-top: 8px;
+line-height: 1.4;
 }
 #talent-selection {
-bottom: 30px;
+bottom: 25px;
 }
 #talent-question {
 font-size: 13px;
@@ -621,15 +629,19 @@ renderer.setSize(window.innerWidth, window.innerHeight);
 renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.5));
 document.body.appendChild(renderer.domElement);
 spheres = createSpheres();
+if (isMobile) {
+spheres.position.y = -4.5;
+} else {
 spheres.position.y = -5;
+}
 scene.add(spheres);
 currentObject = spheres;
 computer = createComputer();
-computer.position.y = -4;
+computer.position.y = isMobile ? -3.5 : -4;
 briefcase = createBriefcase();
-briefcase.position.y = -4;
+briefcase.position.y = isMobile ? -3.5 : -4;
 headset = createHeadset();
-headset.position.y = -4;
+headset.position.y = isMobile ? -3.5 : -4;
 document.addEventListener("mousedown", onMouseDown);
 document.addEventListener("mouseup", onMouseUp);
 document.addEventListener("mousemove", onMouseMove);
