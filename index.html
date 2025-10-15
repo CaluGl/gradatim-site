@@ -1,1390 +1,1224 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Gradatim</title>
-    <style>
-      @import url("https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Inter:wght@300;400;500&display=swap");
-
-      * {
-        margin: 0;
-        padding: 0;
-        box-sizing: border-box;
-      }
-
-      body {
-        overflow: hidden;
-        background: #000000;
-        position: relative;
-        font-family: "Inter", sans-serif;
-      }
-
-      #canvas {
-        display: block;
-        cursor: grab;
-        position: relative;
-        z-index: 10;
-      }
-
-      #canvas:active {
-        cursor: grabbing;
-      }
-
-      #company-header {
-        position: absolute;
-        top: 40px;
-        left: 50%;
-        transform: translateX(-50%);
-        text-align: center;
-        z-index: 100;
-      }
-
-      #company-name {
-        font-family: "Orbitron", sans-serif;
-        font-size: 42px;
-        font-weight: 900;
-        letter-spacing: 8px;
-        color: #ffffff;
-        text-transform: uppercase;
-        margin: 0;
-        text-shadow: 0 0 10px rgba(255, 255, 255, 0.3);
-      }
-
-      #tagline {
-        font-family: "Inter", sans-serif;
-        font-size: 14px;
-        font-weight: 300;
-        letter-spacing: 2px;
-        color: #ffffff;
-        margin-top: 10px;
-        opacity: 0.7;
-      }
-
-      #frontier-text {
-        font-family: "Inter", sans-serif;
-        font-size: 13px;
-        font-weight: 300;
-        letter-spacing: 1px;
-        color: #ffffff;
-        margin-top: 15px;
-        opacity: 0.5;
-        font-style: italic;
-      }
-
-      #talent-selection {
-        position: absolute;
-        bottom: 80px;
-        left: 50%;
-        transform: translateX(-50%);
-        text-align: center;
-        z-index: 100;
-      }
-
-      #talent-question {
-        font-family: "Inter", sans-serif;
-        font-size: 16px;
-        font-weight: 400;
-        color: #ffffff;
-        margin-bottom: 20px;
-        opacity: 0.9;
-      }
-
-      .talent-buttons {
-        display: flex;
-        gap: 20px;
-        justify-content: center;
-      }
-
-      .talent-btn {
-        background: transparent;
-        border: 1px solid #ffffff;
-        color: #ffffff;
-        padding: 12px 30px;
-        font-family: "Inter", sans-serif;
-        font-size: 14px;
-        font-weight: 400;
-        letter-spacing: 1px;
-        cursor: pointer;
-        transition: all 0.3s ease;
-        text-transform: uppercase;
-      }
-
-      .talent-btn:hover {
-        background: #ffffff;
-        color: #000000;
-        transform: translateY(-2px);
-        box-shadow: 0 5px 20px rgba(255, 255, 255, 0.3);
-      }
-
-      #contact-form {
-        position: fixed;
-        top: 50%;
-        right: -450px;
-        transform: translateY(-50%);
-        background: rgba(0, 0, 0, 0.95);
-        border: 1px solid #ffffff;
-        padding: 40px;
-        z-index: 1000;
-        display: block;
-        width: 400px;
-        max-width: 90%;
-        backdrop-filter: blur(10px);
-        max-height: 80vh;
-        overflow-y: auto;
-        transition: right 0.4s ease-in-out;
-      }
-
-      #contact-form.active {
-        right: 30px;
-      }
-
-      .form-title {
-        font-family: "Orbitron", sans-serif;
-        font-size: 20px;
-        font-weight: 700;
-        color: #ffffff;
-        margin-bottom: 25px;
-        text-align: center;
-        text-transform: uppercase;
-        letter-spacing: 3px;
-      }
-
-      .form-group {
-        margin-bottom: 20px;
-      }
-
-      .form-label {
-        display: block;
-        font-family: "Inter", sans-serif;
-        font-size: 12px;
-        font-weight: 400;
-        color: #ffffff;
-        margin-bottom: 8px;
-        text-transform: uppercase;
-        letter-spacing: 1px;
-        opacity: 0.7;
-      }
-
-      .form-input,
-      .form-textarea {
-        width: 100%;
-        background: transparent;
-        border: 1px solid rgba(255, 255, 255, 0.3);
-        color: #ffffff;
-        padding: 10px;
-        font-family: "Inter", sans-serif;
-        font-size: 14px;
-        transition: border-color 0.3s ease;
-      }
-
-      .form-input:focus,
-      .form-textarea:focus {
-        outline: none;
-        border-color: #ffffff;
-      }
-
-      .form-textarea {
-        min-height: 100px;
-        resize: vertical;
-      }
-
-      .form-buttons {
-        display: flex;
-        gap: 15px;
-        margin-top: 25px;
-      }
-
-      .form-btn {
-        flex: 1;
-        background: transparent;
-        border: 1px solid #ffffff;
-        color: #ffffff;
-        padding: 12px 20px;
-        font-family: "Inter", sans-serif;
-        font-size: 14px;
-        font-weight: 400;
-        letter-spacing: 1px;
-        cursor: pointer;
-        transition: all 0.3s ease;
-        text-transform: uppercase;
-      }
-
-      .form-btn.submit {
-        background: #ffffff;
-        color: #000000;
-      }
-
-      .form-btn:hover {
-        transform: translateY(-1px);
-      }
-
-      .form-btn.submit:hover {
-        background: transparent;
-        color: #ffffff;
-      }
-
-      .form-btn.cancel:hover {
-        background: #ffffff;
-        color: #000000;
-      }
-
-      .close-btn {
-        position: absolute;
-        top: 15px;
-        right: 15px;
-        background: transparent;
-        border: none;
-        color: #ffffff;
-        font-size: 24px;
-        cursor: pointer;
-        opacity: 0.7;
-        transition: opacity 0.3s ease;
-      }
-
-      .close-btn:hover {
-        opacity: 1;
-      }
-
-      #codeBackground {
-        position: absolute;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        overflow: hidden;
-        z-index: 1;
-        font-family: "Courier New", monospace;
-        font-size: 11px;
-        line-height: 1.4;
-        pointer-events: none;
-      }
-
-      .codeColumn {
-        position: absolute;
-        width: auto;
-        height: 200%;
-        display: flex;
-        flex-direction: column;
-        animation: scrollVertical linear infinite;
-        color: #ffffff;
-        opacity: 0.1;
-      }
-
-      .codeLine {
-        white-space: nowrap;
-        padding: 3px 0;
-      }
-
-      @keyframes scrollVertical {
-        0% {
-          transform: translateY(0);
-        }
-        100% {
-          transform: translateY(-50%);
-        }
-      }
-
-      @media (max-width: 768px) {
-        #company-name {
-          font-size: 32px;
-          letter-spacing: 5px;
-        }
-
-        .talent-buttons {
-          flex-direction: column;
-          gap: 10px;
-        }
-
-        #contact-form {
-          width: 85%;
-          right: -90%;
-          padding: 25px;
-        }
-
-        #contact-form.active {
-          right: 5px;
-        }
-      }
-    </style>
-  </head>
-  <body>
-    <div id="codeBackground"></div>
-    <div id="company-header">
-      <h1 id="company-name">GRADATIM</h1>
-      <p id="tagline">You need talents, we find them, fast.</p>
-      <p id="frontier-text">
-        30 years ago, the next frontier was in the East.<br />Today, the future
-        is in the South.
-      </p>
-    </div>
-
-    <div id="talent-selection">
-      <p id="talent-question">What kind of talents do you need?</p>
-      <div class="talent-buttons">
-        <button class="talent-btn" onclick="showForm('Tech')">Tech</button>
-        <button class="talent-btn" onclick="showForm('Sales')">Sales</button>
-        <button class="talent-btn" onclick="showForm('Support')">
-          Support
-        </button>
-      </div>
-    </div>
-
-    <div id="contact-form">
-      <button class="close-btn" onclick="hideForm()">&times;</button>
-      <h2 class="form-title" id="form-category">Tech</h2>
-      <form onsubmit="handleSubmit(event)">
-        <div class="form-group">
-          <label class="form-label" for="need">Describe your need</label>
-          <textarea
-            class="form-textarea"
-            id="need"
-            name="need"
-            required
-            placeholder="Tell us about the talent you're looking for..."
-          ></textarea>
-        </div>
-        <div class="form-group">
-          <label class="form-label" for="name">Your Name</label>
-          <input
-            type="text"
-            class="form-input"
-            id="name"
-            name="name"
-            required
-            placeholder="John Doe"
-          />
-        </div>
-        <div class="form-group">
-          <label class="form-label" for="contact">Email or Phone</label>
-          <input
-            type="text"
-            class="form-input"
-            id="contact"
-            name="contact"
-            required
-            placeholder="john@company.com or +1 234 567 8900"
-          />
-        </div>
-        <div class="form-buttons">
-          <button type="button" class="form-btn cancel" onclick="hideForm()">
-            Cancel
-          </button>
-          <button type="submit" class="form-btn submit">Send</button>
-        </div>
-      </form>
-    </div>
-
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-    <script>
-      // Form functions
-      let selectedCategory = "";
-
-      function showForm(category) {
-        selectedCategory = category;
-        document.getElementById("form-category").textContent = category;
-        document.getElementById("contact-form").classList.add("active");
-
-        // Remove current object from scene
-        if (currentObject) {
-          scene.remove(currentObject);
-        }
-
-        // Switch 3D object based on category and position to the left
-        if (category === "Tech") {
-          scene.add(computer);
-          currentObject = computer;
-          computer.position.x = -3; // Move to left
-        } else if (category === "Sales") {
-          scene.add(briefcase);
-          currentObject = briefcase;
-          briefcase.position.x = -3; // Move to left
-        } else if (category === "Support") {
-          scene.add(headset);
-          currentObject = headset;
-          headset.position.x = -3; // Move to left
-        }
-      }
-
-      function hideForm() {
-        document.getElementById("contact-form").classList.remove("active");
-        document.getElementById("need").value = "";
-        document.getElementById("name").value = "";
-        document.getElementById("contact").value = "";
-
-        // Return to spheres when closing form
-        if (currentObject !== spheres) {
-          scene.remove(currentObject);
-          // Reset positions
-          computer.position.x = 0;
-          briefcase.position.x = 0;
-          headset.position.x = 0;
-          scene.add(spheres);
-          currentObject = spheres;
-        }
-      }
-
-      function handleSubmit(event) {
-        event.preventDefault();
-        const formData = {
-          category: selectedCategory,
-          need: document.getElementById("need").value,
-          name: document.getElementById("name").value,
-          contact: document.getElementById("contact").value,
-        };
-        console.log("Form submitted:", formData);
-        alert(
-          `Thank you! We'll get back to you soon about your ${selectedCategory} talent needs.`
-        );
-        hideForm();
-      }
-
-      // Optimized code background
-      const codeSnippets = [
-        "function animate() { requestAnimationFrame(animate); }",
-        "const sphere = new THREE.Mesh(geometry, material);",
-        "vec3 position = normalize(vPosition);",
-        "renderer.render(scene, camera);",
-        'geometry.setAttribute("position", vertices);',
-        "const clock = new THREE.Clock();",
-        "material.wireframe = true;",
-        "scene.add(mesh);",
-        "camera.position.z = 15;",
-        "rotation.y += 0.002;",
-        "gl_Position = projectionMatrix * mvPosition;",
-        "const raycaster = new THREE.Raycaster();",
-        "if (intersects.length > 0) return true;",
-        "mesh.rotation.x += deltaTime;",
-        "const quaternion = new THREE.Quaternion();",
-        "uniforms.time.value = clock.getElapsedTime();",
-        "const matrix = new THREE.Matrix4();",
-        "vec4 mvPosition = modelViewMatrix * vec4(pos, 1.0);",
-        "float intensity = dot(normal, lightDirection);",
-        "requestAnimationFrame(render);",
-      ];
-
-      function createCodeBackground() {
-        const container = document.getElementById("codeBackground");
-        const columnCount = Math.floor(window.innerWidth / 250) + 1;
-
-        for (let col = 0; col < columnCount; col++) {
-          const column = document.createElement("div");
-          column.className = "codeColumn";
-          column.style.left = `${col * 250}px`;
-          column.style.animationDuration = `${40 + Math.random() * 20}s`;
-          column.style.animationDelay = `${Math.random() * 10}s`;
-
-          for (let set = 0; set < 2; set++) {
-            for (let i = 0; i < 25; i++) {
-              const line = document.createElement("div");
-              line.className = "codeLine";
-              line.textContent =
-                codeSnippets[Math.floor(Math.random() * codeSnippets.length)];
-              column.appendChild(line);
-            }
-          }
-
-          container.appendChild(column);
-        }
-      }
-
-      createCodeBackground();
-
-      // Three.js scene
-      let scene, camera, renderer;
-      let spheres, computer, briefcase, headset, currentObject;
-      let targetRotation = { x: 0, y: 0 };
-      let currentRotation = { x: 0, y: 0 };
-      let isDragging = false;
-      let previousMousePosition = { x: 0, y: 0 };
-
-      function createSpheres() {
-        const spheresGroup = new THREE.Group();
-
-        // Create inner wireframe sphere
-        const innerGeometry = new THREE.SphereGeometry(3, 16, 12);
-        const innerMaterial = new THREE.MeshBasicMaterial({
-          color: 0xffffff,
-          wireframe: true,
-          transparent: true,
-          opacity: 0.7,
-        });
-        const innerSphere = new THREE.Mesh(innerGeometry, innerMaterial);
-        spheresGroup.add(innerSphere);
-
-        // Create outer wireframe sphere
-        const outerGeometry = new THREE.SphereGeometry(4.5, 20, 14);
-        const outerMaterial = new THREE.MeshBasicMaterial({
-          color: 0xffffff,
-          wireframe: true,
-          transparent: true,
-          opacity: 0.3,
-        });
-        const outerSphere = new THREE.Mesh(outerGeometry, outerMaterial);
-        spheresGroup.add(outerSphere);
-
-        return spheresGroup;
-      }
-
-      function createRomanBridge() {
-        const bridgeGroup = new THREE.Group();
-        const archCount = 6;
-        const archWidth = 3;
-        const archHeight = 2.5;
-        const pierWidth = 0.8;
-        const pierHeight = 3;
-        const bridgeDepth = 1.5;
-        const spacing = archWidth + pierWidth;
-
-        const material = new THREE.LineBasicMaterial({
-          color: 0xffffff,
-          transparent: true,
-          opacity: 0.8,
-        });
-
-        // Create arches and piers
-        for (let i = 0; i < archCount; i++) {
-          const xPos = (i - archCount / 2 + 0.5) * spacing;
-
-          // Create arch (semi-circle)
-          const archCurve = new THREE.EllipseCurve(
-            xPos,
-            -pierHeight / 2,
-            archWidth / 2,
-            archHeight,
-            0,
-            Math.PI,
-            false,
-            0
-          );
-
-          const archPoints = archCurve.getPoints(30);
-          const archGeometry = new THREE.BufferGeometry().setFromPoints(
-            archPoints
-          );
-          const arch = new THREE.Line(archGeometry, material);
-          bridgeGroup.add(arch);
-
-          // Create depth lines for arch
-          const archDepthGeometry = new THREE.BufferGeometry();
-          const depthVertices = [];
-          for (let j = 0; j < archPoints.length; j++) {
-            depthVertices.push(
-              archPoints[j].x,
-              archPoints[j].y,
-              -bridgeDepth / 2
-            );
-            depthVertices.push(
-              archPoints[j].x,
-              archPoints[j].y,
-              bridgeDepth / 2
-            );
-          }
-          archDepthGeometry.setAttribute(
-            "position",
-            new THREE.Float32BufferAttribute(depthVertices, 3)
-          );
-          const archDepthLines = new THREE.LineSegments(
-            archDepthGeometry,
-            material
-          );
-          bridgeGroup.add(archDepthLines);
-
-          // Create back arch
-          const backArch = arch.clone();
-          backArch.position.z = bridgeDepth;
-          bridgeGroup.add(backArch);
-
-          // Create piers (rectangular supports)
-          if (i < archCount - 1) {
-            const pierGeometry = new THREE.BoxGeometry(
-              pierWidth,
-              pierHeight,
-              bridgeDepth
-            );
-            const pierEdges = new THREE.EdgesGeometry(pierGeometry);
-            const pier = new THREE.LineSegments(pierEdges, material);
-            pier.position.x = xPos + archWidth / 2 + pierWidth / 2;
-            pier.position.y = -pierHeight / 2;
-            bridgeGroup.add(pier);
-          }
-        }
-
-        // Create side piers
-        const sidePierLeft = new THREE.BoxGeometry(
-          pierWidth,
-          pierHeight,
-          bridgeDepth
-        );
-        const sidePierLeftEdges = new THREE.EdgesGeometry(sidePierLeft);
-        const leftPier = new THREE.LineSegments(sidePierLeftEdges, material);
-        leftPier.position.x = (-archCount / 2) * spacing - pierWidth / 2;
-        leftPier.position.y = -pierHeight / 2;
-        bridgeGroup.add(leftPier);
-
-        const rightPier = leftPier.clone();
-        rightPier.position.x = (archCount / 2) * spacing + pierWidth / 2;
-        bridgeGroup.add(rightPier);
-
-        // Create deck/roadway on top
-        const deckLength = archCount * spacing + pierWidth * 2;
-        const deckGeometry = new THREE.BoxGeometry(
-          deckLength,
-          0.3,
-          bridgeDepth
-        );
-        const deckEdges = new THREE.EdgesGeometry(deckGeometry);
-        const deck = new THREE.LineSegments(deckEdges, material);
-        deck.position.y = archHeight - pierHeight / 2 + 0.15;
-        bridgeGroup.add(deck);
-
-        // Create deck surface lines
-        const deckLinesGeometry = new THREE.BufferGeometry();
-        const deckVertices = [];
-        const lineCount = 10;
-        for (let i = 0; i <= lineCount; i++) {
-          const x = -deckLength / 2 + (deckLength / lineCount) * i;
-          deckVertices.push(
-            x,
-            archHeight - pierHeight / 2 + 0.3,
-            -bridgeDepth / 2
-          );
-          deckVertices.push(
-            x,
-            archHeight - pierHeight / 2 + 0.3,
-            bridgeDepth / 2
-          );
-        }
-        deckLinesGeometry.setAttribute(
-          "position",
-          new THREE.Float32BufferAttribute(deckVertices, 3)
-        );
-        const deckLines = new THREE.LineSegments(deckLinesGeometry, material);
-        bridgeGroup.add(deckLines);
-
-        // Create railings
-        const railingHeight = 0.5;
-        const railingGeometry = new THREE.BufferGeometry();
-        const railingVertices = [];
-
-        // Front railing
-        for (let i = 0; i <= lineCount; i++) {
-          const x = -deckLength / 2 + (deckLength / lineCount) * i;
-          railingVertices.push(
-            x,
-            archHeight - pierHeight / 2 + 0.3,
-            -bridgeDepth / 2
-          );
-          railingVertices.push(
-            x,
-            archHeight - pierHeight / 2 + 0.3 + railingHeight,
-            -bridgeDepth / 2
-          );
-        }
-
-        // Back railing
-        for (let i = 0; i <= lineCount; i++) {
-          const x = -deckLength / 2 + (deckLength / lineCount) * i;
-          railingVertices.push(
-            x,
-            archHeight - pierHeight / 2 + 0.3,
-            bridgeDepth / 2
-          );
-          railingVertices.push(
-            x,
-            archHeight - pierHeight / 2 + 0.3 + railingHeight,
-            bridgeDepth / 2
-          );
-        }
-
-        railingGeometry.setAttribute(
-          "position",
-          new THREE.Float32BufferAttribute(railingVertices, 3)
-        );
-        const railings = new THREE.LineSegments(railingGeometry, material);
-        bridgeGroup.add(railings);
-
-        // Add horizontal railing lines
-        const railTopGeometry = new THREE.BufferGeometry();
-        const railTopVertices = [
-          -deckLength / 2,
-          archHeight - pierHeight / 2 + 0.3 + railingHeight,
-          -bridgeDepth / 2,
-          deckLength / 2,
-          archHeight - pierHeight / 2 + 0.3 + railingHeight,
-          -bridgeDepth / 2,
-          -deckLength / 2,
-          archHeight - pierHeight / 2 + 0.3 + railingHeight,
-          bridgeDepth / 2,
-          deckLength / 2,
-          archHeight - pierHeight / 2 + 0.3 + railingHeight,
-          bridgeDepth / 2,
-        ];
-        railTopGeometry.setAttribute(
-          "position",
-          new THREE.Float32BufferAttribute(railTopVertices, 3)
-        );
-        const railTop = new THREE.LineSegments(railTopGeometry, material);
-        bridgeGroup.add(railTop);
-
-        return bridgeGroup;
-      }
-
-      function createComputer() {
-        const computerGroup = new THREE.Group();
-        const material = new THREE.LineBasicMaterial({
-          color: 0xffffff,
-          transparent: true,
-          opacity: 0.8,
-        });
-
-        // Create monitor
-        const monitorWidth = 6;
-        const monitorHeight = 4;
-        const monitorDepth = 0.3;
-
-        // Monitor screen
-        const screenGeometry = new THREE.BoxGeometry(
-          monitorWidth,
-          monitorHeight,
-          monitorDepth
-        );
-        const screenEdges = new THREE.EdgesGeometry(screenGeometry);
-        const screen = new THREE.LineSegments(screenEdges, material);
-        screen.position.y = 2;
-        computerGroup.add(screen);
-
-        // Add screen detail lines (grid pattern)
-        const gridGeometry = new THREE.BufferGeometry();
-        const gridVertices = [];
-        const gridLines = 8;
-
-        // Horizontal lines
-        for (let i = 1; i < gridLines; i++) {
-          const y = 2 - monitorHeight / 2 + (monitorHeight / gridLines) * i;
-          gridVertices.push(
-            -monitorWidth / 2 + 0.1,
-            y,
-            -monitorDepth / 2 - 0.01
-          );
-          gridVertices.push(
-            monitorWidth / 2 - 0.1,
-            y,
-            -monitorDepth / 2 - 0.01
-          );
-        }
-
-        // Vertical lines
-        for (let i = 1; i < gridLines; i++) {
-          const x = -monitorWidth / 2 + (monitorWidth / gridLines) * i;
-          gridVertices.push(
-            x,
-            2 + monitorHeight / 2 - 0.1,
-            -monitorDepth / 2 - 0.01
-          );
-          gridVertices.push(
-            x,
-            2 - monitorHeight / 2 + 0.1,
-            -monitorDepth / 2 - 0.01
-          );
-        }
-
-        gridGeometry.setAttribute(
-          "position",
-          new THREE.Float32BufferAttribute(gridVertices, 3)
-        );
-        const gridLines3D = new THREE.LineSegments(gridGeometry, material);
-        computerGroup.add(gridLines3D);
-
-        // Monitor stand neck
-        const neckGeometry = new THREE.BoxGeometry(0.5, 1.5, 0.3);
-        const neckEdges = new THREE.EdgesGeometry(neckGeometry);
-        const neck = new THREE.LineSegments(neckEdges, material);
-        neck.position.y = -0.5;
-        computerGroup.add(neck);
-
-        // Monitor base
-        const baseGeometry = new THREE.BoxGeometry(3, 0.2, 2);
-        const baseEdges = new THREE.EdgesGeometry(baseGeometry);
-        const base = new THREE.LineSegments(baseEdges, material);
-        base.position.y = -1.5;
-        computerGroup.add(base);
-
-        // Create keyboard
-        const keyboardWidth = 5;
-        const keyboardHeight = 0.2;
-        const keyboardDepth = 2;
-
-        const keyboardGeometry = new THREE.BoxGeometry(
-          keyboardWidth,
-          keyboardHeight,
-          keyboardDepth
-        );
-        const keyboardEdges = new THREE.EdgesGeometry(keyboardGeometry);
-        const keyboard = new THREE.LineSegments(keyboardEdges, material);
-        keyboard.position.y = -1.5;
-        keyboard.position.z = 2.5;
-        keyboard.rotation.x = -0.1;
-        computerGroup.add(keyboard);
-
-        // Add keyboard keys (grid)
-        const keysGeometry = new THREE.BufferGeometry();
-        const keysVertices = [];
-        const keyRows = 5;
-        const keyCols = 12;
-
-        for (let i = 1; i < keyRows; i++) {
-          const z = 2.5 - keyboardDepth / 2 + (keyboardDepth / keyRows) * i;
-          keysVertices.push(-keyboardWidth / 2 + 0.1, -1.4, z);
-          keysVertices.push(keyboardWidth / 2 - 0.1, -1.4, z);
-        }
-
-        for (let i = 1; i < keyCols; i++) {
-          const x = -keyboardWidth / 2 + (keyboardWidth / keyCols) * i;
-          keysVertices.push(x, -1.4, 2.5 - keyboardDepth / 2 + 0.1);
-          keysVertices.push(x, -1.4, 2.5 + keyboardDepth / 2 - 0.1);
-        }
-
-        keysGeometry.setAttribute(
-          "position",
-          new THREE.Float32BufferAttribute(keysVertices, 3)
-        );
-        const keys = new THREE.LineSegments(keysGeometry, material);
-        computerGroup.add(keys);
-
-        // Create mouse
-        const mouseGeometry = new THREE.BoxGeometry(0.6, 0.1, 1);
-        const mouseEdges = new THREE.EdgesGeometry(mouseGeometry);
-        const mouse = new THREE.LineSegments(mouseEdges, material);
-        mouse.position.y = -1.5;
-        mouse.position.x = 4;
-        mouse.position.z = 2.5;
-        computerGroup.add(mouse);
-
-        // Add CPU tower (optional, on the side)
-        const towerWidth = 1.5;
-        const towerHeight = 4;
-        const towerDepth = 2;
-
-        const towerGeometry = new THREE.BoxGeometry(
-          towerWidth,
-          towerHeight,
-          towerDepth
-        );
-        const towerEdges = new THREE.EdgesGeometry(towerGeometry);
-        const tower = new THREE.LineSegments(towerEdges, material);
-        tower.position.x = -5;
-        tower.position.y = 0.5;
-        computerGroup.add(tower);
-
-        // Add some detail lines on tower
-        const towerDetailGeometry = new THREE.BufferGeometry();
-        const towerDetailVertices = [];
-
-        // Front panel lines
-        for (let i = 1; i <= 3; i++) {
-          const y = 2.5 - i * 0.5;
-          towerDetailVertices.push(
-            -5 - towerWidth / 2 + 0.1,
-            y,
-            -towerDepth / 2 - 0.01
-          );
-          towerDetailVertices.push(
-            -5 + towerWidth / 2 - 0.1,
-            y,
-            -towerDepth / 2 - 0.01
-          );
-        }
-
-        towerDetailGeometry.setAttribute(
-          "position",
-          new THREE.Float32BufferAttribute(towerDetailVertices, 3)
-        );
-        const towerDetails = new THREE.LineSegments(
-          towerDetailGeometry,
-          material
-        );
-        computerGroup.add(towerDetails);
-
-        return computerGroup;
-      }
-
-      function createBriefcase() {
-        const briefcaseGroup = new THREE.Group();
-        const material = new THREE.LineBasicMaterial({
-          color: 0xffffff,
-          transparent: true,
-          opacity: 0.8,
-        });
-
-        // Main briefcase body
-        const bodyWidth = 5;
-        const bodyHeight = 3.5;
-        const bodyDepth = 1.5;
-
-        const bodyGeometry = new THREE.BoxGeometry(
-          bodyWidth,
-          bodyHeight,
-          bodyDepth
-        );
-        const bodyEdges = new THREE.EdgesGeometry(bodyGeometry);
-        const body = new THREE.LineSegments(bodyEdges, material);
-        briefcaseGroup.add(body);
-
-        // Add center dividing line
-        const dividerGeometry = new THREE.BufferGeometry();
-        const dividerVertices = [
-          -bodyWidth / 2,
-          0,
-          -bodyDepth / 2 - 0.01,
-          bodyWidth / 2,
-          0,
-          -bodyDepth / 2 - 0.01,
-          -bodyWidth / 2,
-          0,
-          bodyDepth / 2 + 0.01,
-          bodyWidth / 2,
-          0,
-          bodyDepth / 2 + 0.01,
-        ];
-        dividerGeometry.setAttribute(
-          "position",
-          new THREE.Float32BufferAttribute(dividerVertices, 3)
-        );
-        const divider = new THREE.LineSegments(dividerGeometry, material);
-        briefcaseGroup.add(divider);
-
-        // Handle
-        const handleCurve = new THREE.CatmullRomCurve3([
-          new THREE.Vector3(-1.5, bodyHeight / 2, 0),
-          new THREE.Vector3(-1.5, bodyHeight / 2 + 1, 0),
-          new THREE.Vector3(0, bodyHeight / 2 + 1.2, 0),
-          new THREE.Vector3(1.5, bodyHeight / 2 + 1, 0),
-          new THREE.Vector3(1.5, bodyHeight / 2, 0),
-        ]);
-
-        const handlePoints = handleCurve.getPoints(50);
-        const handleGeometry = new THREE.BufferGeometry().setFromPoints(
-          handlePoints
-        );
-        const handle = new THREE.Line(handleGeometry, material);
-        briefcaseGroup.add(handle);
-
-        // Handle depth
-        const handleDepthGeometry = new THREE.BufferGeometry();
-        const handleDepthVertices = [];
-        for (let i = 0; i < handlePoints.length; i += 5) {
-          handleDepthVertices.push(handlePoints[i].x, handlePoints[i].y, -0.2);
-          handleDepthVertices.push(handlePoints[i].x, handlePoints[i].y, 0.2);
-        }
-        handleDepthGeometry.setAttribute(
-          "position",
-          new THREE.Float32BufferAttribute(handleDepthVertices, 3)
-        );
-        const handleDepth = new THREE.LineSegments(
-          handleDepthGeometry,
-          material
-        );
-        briefcaseGroup.add(handleDepth);
-
-        // Locks/latches
-        const lockGeometry = new THREE.BoxGeometry(0.6, 0.3, 0.2);
-        const lockEdges = new THREE.EdgesGeometry(lockGeometry);
-        const lock1 = new THREE.LineSegments(lockEdges, material);
-        lock1.position.set(-1, 0, -bodyDepth / 2 - 0.1);
-        briefcaseGroup.add(lock1);
-
-        const lock2 = lock1.clone();
-        lock2.position.set(1, 0, -bodyDepth / 2 - 0.1);
-        briefcaseGroup.add(lock2);
-
-        // Corner reinforcements
-        const cornerSize = 0.3;
-        const cornerGeometry = new THREE.BufferGeometry();
-        const cornerVertices = [];
-
-        // Top left corner
-        cornerVertices.push(
-          -bodyWidth / 2,
-          bodyHeight / 2 - cornerSize,
-          -bodyDepth / 2 - 0.01
-        );
-        cornerVertices.push(
-          -bodyWidth / 2,
-          bodyHeight / 2,
-          -bodyDepth / 2 - 0.01
-        );
-        cornerVertices.push(
-          -bodyWidth / 2 + cornerSize,
-          bodyHeight / 2,
-          -bodyDepth / 2 - 0.01
-        );
-
-        // Top right corner
-        cornerVertices.push(
-          bodyWidth / 2 - cornerSize,
-          bodyHeight / 2,
-          -bodyDepth / 2 - 0.01
-        );
-        cornerVertices.push(
-          bodyWidth / 2,
-          bodyHeight / 2,
-          -bodyDepth / 2 - 0.01
-        );
-        cornerVertices.push(
-          bodyWidth / 2,
-          bodyHeight / 2 - cornerSize,
-          -bodyDepth / 2 - 0.01
-        );
-
-        // Bottom left corner
-        cornerVertices.push(
-          -bodyWidth / 2,
-          -bodyHeight / 2 + cornerSize,
-          -bodyDepth / 2 - 0.01
-        );
-        cornerVertices.push(
-          -bodyWidth / 2,
-          -bodyHeight / 2,
-          -bodyDepth / 2 - 0.01
-        );
-        cornerVertices.push(
-          -bodyWidth / 2 + cornerSize,
-          -bodyHeight / 2,
-          -bodyDepth / 2 - 0.01
-        );
-
-        // Bottom right corner
-        cornerVertices.push(
-          bodyWidth / 2 - cornerSize,
-          -bodyHeight / 2,
-          -bodyDepth / 2 - 0.01
-        );
-        cornerVertices.push(
-          bodyWidth / 2,
-          -bodyHeight / 2,
-          -bodyDepth / 2 - 0.01
-        );
-        cornerVertices.push(
-          bodyWidth / 2,
-          -bodyHeight / 2 + cornerSize,
-          -bodyDepth / 2 - 0.01
-        );
-
-        cornerGeometry.setAttribute(
-          "position",
-          new THREE.Float32BufferAttribute(cornerVertices, 3)
-        );
-        const corners = new THREE.Line(cornerGeometry, material);
-        briefcaseGroup.add(corners);
-
-        return briefcaseGroup;
-      }
-
-      function createHeadset() {
-        const headsetGroup = new THREE.Group();
-        const material = new THREE.LineBasicMaterial({
-          color: 0xffffff,
-          transparent: true,
-          opacity: 0.8,
-        });
-
-        // Headband (arc)
-        const headbandCurve = new THREE.CatmullRomCurve3([
-          new THREE.Vector3(-2.5, 0, 0),
-          new THREE.Vector3(-2.5, 2, 0),
-          new THREE.Vector3(-1.5, 3, 0),
-          new THREE.Vector3(0, 3.2, 0),
-          new THREE.Vector3(1.5, 3, 0),
-          new THREE.Vector3(2.5, 2, 0),
-          new THREE.Vector3(2.5, 0, 0),
-        ]);
-
-        const headbandPoints = headbandCurve.getPoints(50);
-        const headbandGeometry = new THREE.BufferGeometry().setFromPoints(
-          headbandPoints
-        );
-        const headband = new THREE.Line(headbandGeometry, material);
-        headsetGroup.add(headband);
-
-        // Headband thickness lines
-        const bandThicknessGeometry = new THREE.BufferGeometry();
-        const bandVertices = [];
-        for (let i = 0; i < headbandPoints.length; i += 5) {
-          bandVertices.push(headbandPoints[i].x, headbandPoints[i].y, -0.3);
-          bandVertices.push(headbandPoints[i].x, headbandPoints[i].y, 0.3);
-        }
-        bandThicknessGeometry.setAttribute(
-          "position",
-          new THREE.Float32BufferAttribute(bandVertices, 3)
-        );
-        const bandThickness = new THREE.LineSegments(
-          bandThicknessGeometry,
-          material
-        );
-        headsetGroup.add(bandThickness);
-
-        // Left ear cup
-        const earCupRadius = 1;
-        const leftEarGeometry = new THREE.CylinderGeometry(
-          earCupRadius,
-          earCupRadius,
-          0.5,
-          16
-        );
-        const leftEarEdges = new THREE.EdgesGeometry(leftEarGeometry);
-        const leftEar = new THREE.LineSegments(leftEarEdges, material);
-        leftEar.position.set(-2.5, 0, 0);
-        leftEar.rotation.z = Math.PI / 2;
-        headsetGroup.add(leftEar);
-
-        // Right ear cup
-        const rightEar = leftEar.clone();
-        rightEar.position.set(2.5, 0, 0);
-        headsetGroup.add(rightEar);
-
-        // Ear cushion details (circles)
-        const cushionGeometry = new THREE.CircleGeometry(0.7, 12);
-        const cushionEdges = new THREE.EdgesGeometry(cushionGeometry);
-        const leftCushion = new THREE.LineSegments(cushionEdges, material);
-        leftCushion.position.set(-3, 0, 0);
-        leftCushion.rotation.y = Math.PI / 2;
-        headsetGroup.add(leftCushion);
-
-        const rightCushion = leftCushion.clone();
-        rightCushion.position.set(3, 0, 0);
-        headsetGroup.add(rightCushion);
-
-        // Microphone arm
-        const micArmCurve = new THREE.CatmullRomCurve3([
-          new THREE.Vector3(-2.5, -0.5, 0),
-          new THREE.Vector3(-2.5, -0.5, 1),
-          new THREE.Vector3(-2, -1, 2),
-          new THREE.Vector3(-1, -1.5, 2.5),
-        ]);
-
-        const micArmPoints = micArmCurve.getPoints(30);
-        const micArmGeometry = new THREE.BufferGeometry().setFromPoints(
-          micArmPoints
-        );
-        const micArm = new THREE.Line(micArmGeometry, material);
-        headsetGroup.add(micArm);
-
-        // Microphone head
-        const micGeometry = new THREE.CylinderGeometry(0.2, 0.3, 0.6, 8);
-        const micEdges = new THREE.EdgesGeometry(micGeometry);
-        const mic = new THREE.LineSegments(micEdges, material);
-        mic.position.set(-1, -1.5, 2.5);
-        mic.rotation.x = Math.PI / 2;
-        headsetGroup.add(mic);
-
-        // Cable from one ear
-        const cableCurve = new THREE.CatmullRomCurve3([
-          new THREE.Vector3(2.5, -1, 0),
-          new THREE.Vector3(2.5, -2, 0.2),
-          new THREE.Vector3(2.3, -3, 0.3),
-          new THREE.Vector3(2, -4, 0.3),
-          new THREE.Vector3(1.5, -5, 0.3),
-        ]);
-
-        const cablePoints = cableCurve.getPoints(20);
-        const cableGeometry = new THREE.BufferGeometry().setFromPoints(
-          cablePoints
-        );
-        const cable = new THREE.Line(cableGeometry, material);
-        headsetGroup.add(cable);
-
-        return headsetGroup;
-      }
-
-      function init() {
-        // Scene setup
-        scene = new THREE.Scene();
-        scene.background = new THREE.Color(0x000000);
-
-        // Camera setup
-        camera = new THREE.PerspectiveCamera(
-          50,
-          window.innerWidth / window.innerHeight,
-          0.1,
-          1000
-        );
-        camera.position.set(0, -5, 18);
-        camera.lookAt(0, -5, 0);
-
-        // Renderer setup with performance optimizations
-        renderer = new THREE.WebGLRenderer({
-          antialias: true,
-          powerPreference: "high-performance",
-        });
-        renderer.setSize(window.innerWidth, window.innerHeight);
-        renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.5));
-        document.body.appendChild(renderer.domElement);
-
-        // Create spheres (default object)
-        spheres = createSpheres();
-        spheres.position.y = -5;
-        scene.add(spheres);
-        currentObject = spheres;
-
-        // Create computer but don't add to scene yet
-        computer = createComputer();
-        computer.position.y = -4;
-
-        // Create briefcase but don't add to scene yet
-        briefcase = createBriefcase();
-        briefcase.position.y = -4;
-        briefcase.scale.set(1.2, 1.2, 1.2);
-
-        // Create headset but don't add to scene yet
-        headset = createHeadset();
-        headset.position.y = -4;
-        headset.scale.set(1.5, 1.5, 1.5);
-
-        // Event listeners
-        document.addEventListener("mousedown", onMouseDown);
-        document.addEventListener("mouseup", onMouseUp);
-        document.addEventListener("mousemove", onMouseMove);
-        document.addEventListener("wheel", onMouseWheel);
-        window.addEventListener("resize", onWindowResize);
-
-        // Touch events
-        document.addEventListener("touchstart", onTouchStart, {
-          passive: false,
-        });
-        document.addEventListener("touchmove", onTouchMove, { passive: false });
-        document.addEventListener("touchend", onTouchEnd);
-      }
-
-      function onMouseDown(event) {
-        // Don't rotate if clicking on UI elements
-        if (
-          event.target.classList.contains("talent-btn") ||
-          event.target.closest("#contact-form")
-        ) {
-          return;
-        }
-        isDragging = true;
-        previousMousePosition = {
-          x: event.clientX,
-          y: event.clientY,
-        };
-      }
-
-      function onMouseUp() {
-        isDragging = false;
-      }
-
-      function onMouseMove(event) {
-        if (!isDragging) return;
-
-        const deltaMove = {
-          x: event.clientX - previousMousePosition.x,
-          y: event.clientY - previousMousePosition.y,
-        };
-
-        targetRotation.y += deltaMove.x * 0.01;
-        targetRotation.x += deltaMove.y * 0.01;
-
-        previousMousePosition = {
-          x: event.clientX,
-          y: event.clientY,
-        };
-      }
-
-      function onTouchStart(event) {
-        if (
-          event.target.classList.contains("talent-btn") ||
-          event.target.closest("#contact-form")
-        ) {
-          return;
-        }
-        if (event.touches.length === 1) {
-          isDragging = true;
-          previousMousePosition = {
-            x: event.touches[0].clientX,
-            y: event.touches[0].clientY,
-          };
-        }
-        event.preventDefault();
-      }
-
-      function onTouchMove(event) {
-        if (!isDragging || event.touches.length !== 1) return;
-
-        const deltaMove = {
-          x: event.touches[0].clientX - previousMousePosition.x,
-          y: event.touches[0].clientY - previousMousePosition.y,
-        };
-
-        targetRotation.y += deltaMove.x * 0.01;
-        targetRotation.x += deltaMove.y * 0.01;
-
-        previousMousePosition = {
-          x: event.touches[0].clientX,
-          y: event.touches[0].clientY,
-        };
-
-        event.preventDefault();
-      }
-
-      function onTouchEnd() {
-        isDragging = false;
-      }
-
-      function onMouseWheel(event) {
-        event.preventDefault();
-        const delta = event.deltaY * 0.002;
-        camera.position.z = Math.min(
-          Math.max(camera.position.z + delta, 8),
-          30
-        );
-      }
-
-      function onWindowResize() {
-        camera.aspect = window.innerWidth / window.innerHeight;
-        camera.updateProjectionMatrix();
-        renderer.setSize(window.innerWidth, window.innerHeight);
-      }
-
-      function animate() {
-        requestAnimationFrame(animate);
-
-        // Smooth rotation with optimized interpolation
-        const lerpFactor = 0.08;
-        currentRotation.x +=
-          (targetRotation.x - currentRotation.x) * lerpFactor;
-        currentRotation.y +=
-          (targetRotation.y - currentRotation.y) * lerpFactor;
-
-        // Auto-rotation when not dragging
-        if (!isDragging) {
-          targetRotation.x += 0.001;
-          targetRotation.y += 0.002;
-        }
-
-        // Apply rotation to current object
-        if (currentObject === spheres) {
-          // Different rotation speeds for inner and outer spheres
-          if (spheres.children[0]) {
-            spheres.children[0].rotation.x = currentRotation.x;
-            spheres.children[0].rotation.y = currentRotation.y;
-          }
-          if (spheres.children[1]) {
-            spheres.children[1].rotation.x = currentRotation.x * 0.7;
-            spheres.children[1].rotation.y = currentRotation.y * 1.3;
-          }
-        } else if (currentObject) {
-          currentObject.rotation.x = currentRotation.x;
-          currentObject.rotation.y = currentRotation.y;
-        }
-
-        renderer.render(scene, camera);
-      }
-
-      // Initialize and start
-      init();
-      animate();
-    </script>
-  </body>
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Gradatim</title>
+<style>
+@import url("https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Inter:wght@300;400;500&display=swap");
+* {
+margin: 0;
+padding: 0;
+box-sizing: border-box;
+}
+body {
+overflow: hidden;
+background: #000000;
+position: relative;
+font-family: "Inter", sans-serif;
+}
+#canvas {
+display: block;
+cursor: grab;
+position: relative;
+z-index: 10;
+}
+#canvas:active {
+cursor: grabbing;
+}
+#company-header {
+position: absolute;
+top: 40px;
+left: 50%;
+transform: translateX(-50%);
+text-align: center;
+z-index: 100;
+}
+#company-name {
+font-family: "Orbitron", sans-serif;
+font-size: 42px;
+font-weight: 900;
+letter-spacing: 8px;
+color: #ffffff;
+text-transform: uppercase;
+margin: 0;
+text-shadow: 0 0 10px rgba(255, 255, 255, 0.3);
+}
+#tagline {
+font-family: "Inter", sans-serif;
+font-size: 14px;
+font-weight: 300;
+letter-spacing: 2px;
+color: #ffffff;
+margin-top: 10px;
+opacity: 0.7;
+}
+#frontier-text {
+font-family: "Inter", sans-serif;
+font-size: 13px;
+font-weight: 300;
+letter-spacing: 1px;
+color: #ffffff;
+margin-top: 15px;
+opacity: 0.5;
+font-style: italic;
+}
+#talent-selection {
+position: absolute;
+bottom: 80px;
+left: 50%;
+transform: translateX(-50%);
+text-align: center;
+z-index: 100;
+}
+#talent-question {
+font-family: "Inter", sans-serif;
+font-size: 16px;
+font-weight: 400;
+color: #ffffff;
+margin-bottom: 20px;
+opacity: 0.9;
+}
+.talent-buttons {
+display: flex;
+gap: 20px;
+justify-content: center;
+}
+.talent-btn {
+background: transparent;
+border: 1px solid #ffffff;
+color: #ffffff;
+padding: 12px 30px;
+font-family: "Inter", sans-serif;
+font-size: 14px;
+font-weight: 400;
+letter-spacing: 1px;
+cursor: pointer;
+transition: all 0.3s ease;
+text-transform: uppercase;
+}
+.talent-btn:hover {
+background: #ffffff;
+color: #000000;
+transform: translateY(-2px);
+box-shadow: 0 5px 20px rgba(255, 255, 255, 0.3);
+}
+#contact-form {
+position: fixed;
+top: 50%;
+right: -450px;
+transform: translateY(-50%);
+background: rgba(0, 0, 0, 0.95);
+border: 1px solid #ffffff;
+padding: 40px;
+z-index: 1000;
+display: block;
+width: 400px;
+max-width: 90%;
+backdrop-filter: blur(10px);
+max-height: 80vh;
+overflow-y: auto;
+transition: right 0.4s ease-in-out;
+}
+#contact-form.active {
+right: 30px;
+}
+.form-title {
+font-family: "Orbitron", sans-serif;
+font-size: 20px;
+font-weight: 700;
+color: #ffffff;
+margin-bottom: 25px;
+text-align: center;
+text-transform: uppercase;
+letter-spacing: 3px;
+}
+.form-group {
+margin-bottom: 20px;
+}
+.form-label {
+display: block;
+font-family: "Inter", sans-serif;
+font-size: 12px;
+font-weight: 400;
+color: #ffffff;
+margin-bottom: 8px;
+text-transform: uppercase;
+letter-spacing: 1px;
+opacity: 0.7;
+}
+.form-input,
+.form-textarea {
+width: 100%;
+background: transparent;
+border: 1px solid rgba(255, 255, 255, 0.3);
+color: #ffffff;
+padding: 10px;
+font-family: "Inter", sans-serif;
+font-size: 14px;
+transition: border-color 0.3s ease;
+}
+.form-input:focus,
+.form-textarea:focus {
+outline: none;
+border-color: #ffffff;
+}
+.form-textarea {
+min-height: 100px;
+resize: vertical;
+}
+.form-buttons {
+display: flex;
+gap: 15px;
+margin-top: 25px;
+}
+.form-btn {
+flex: 1;
+background: transparent;
+border: 1px solid #ffffff;
+color: #ffffff;
+padding: 12px 20px;
+font-family: "Inter", sans-serif;
+font-size: 14px;
+font-weight: 400;
+letter-spacing: 1px;
+cursor: pointer;
+transition: all 0.3s ease;
+text-transform: uppercase;
+}
+.form-btn.submit {
+background: #ffffff;
+color: #000000;
+}
+.form-btn:hover {
+transform: translateY(-1px);
+}
+.form-btn.submit:hover {
+background: transparent;
+color: #ffffff;
+}
+.form-btn.cancel:hover {
+background: #ffffff;
+color: #000000;
+}
+.close-btn {
+position: absolute;
+top: 15px;
+right: 15px;
+background: transparent;
+border: none;
+color: #ffffff;
+font-size: 24px;
+cursor: pointer;
+opacity: 0.7;
+transition: opacity 0.3s ease;
+}
+.close-btn:hover {
+opacity: 1;
+}
+#codeBackground {
+position: absolute;
+top: 0;
+left: 0;
+width: 100%;
+height: 100%;
+overflow: hidden;
+z-index: 1;
+font-family: "Courier New", monospace;
+font-size: 11px;
+line-height: 1.4;
+pointer-events: none;
+}
+.codeColumn {
+position: absolute;
+width: auto;
+height: 200%;
+display: flex;
+flex-direction: column;
+animation: scrollVertical linear infinite;
+color: #ffffff;
+opacity: 0.1;
+}
+.codeLine {
+white-space: nowrap;
+padding: 3px 0;
+}
+@keyframes scrollVertical {
+0% {
+transform: translateY(0);
+}
+100% {
+transform: translateY(-50%);
+}
+}
+@media (max-width: 768px) {
+#company-name {
+font-size: 32px;
+letter-spacing: 5px;
+}
+.talent-buttons {
+flex-direction: column;
+gap: 10px;
+}
+#contact-form {
+width: 85%;
+right: -90%;
+padding: 25px;
+}
+#contact-form.active {
+right: 5px;
+}
+}
+</style>
+</head>
+<body>
+<div id="codeBackground"></div>
+<div id="company-header">
+<h1 id="company-name">GRADATIM</h1>
+<p id="tagline">You need talents, we find them, fast.</p>
+<p id="frontier-text">
+30 years ago, the next frontier was in the East.<br />Today, the future
+is in the South.
+</p>
+</div>
+<div id="talent-selection">
+<p id="talent-question">What kind of talents do you need?</p>
+<div class="talent-buttons">
+<button class="talent-btn" onclick="showForm('Tech')">Tech</button>
+<button class="talent-btn" onclick="showForm('Sales')">Sales</button>
+<button class="talent-btn" onclick="showForm('Support')">
+Support
+</button>
+</div>
+</div>
+<div id="contact-form">
+<button class="close-btn" onclick="hideForm()">&times;</button>
+<h2 class="form-title" id="form-category">Tech</h2>
+<form action="https://formspree.io/f/meorvzqv" method="POST">
+<!-- Champ caché pour la catégorie -->
+<input type="hidden" name="category" id="category-field" value="Tech">
+<div class="form-group">
+<label class="form-label" for="need">Describe your need</label>
+<textarea
+class="form-textarea"
+id="need"
+name="need"
+required
+placeholder="Tell us about the talent you're looking for..."
+></textarea>
+</div>
+<div class="form-group">
+<label class="form-label" for="name">Your Name</label>
+<input
+type="text"
+class="form-input"
+id="name"
+name="name"
+required
+placeholder="John Doe"
+/>
+</div>
+<div class="form-group">
+<label class="form-label" for="contact">Email or Phone</label>
+<input
+type="text"
+class="form-input"
+id="contact"
+name="contact"
+required
+placeholder="john@company.com or +1 234 567 8900"
+/>
+</div>
+<!-- Champ honeypot anti-spam (caché) -->
+<input type="text" name="_gotcha" style="display:none">
+<div class="form-buttons">
+<button type="button" class="form-btn cancel" onclick="hideForm()">
+Cancel
+</button>
+<button type="submit" class="form-btn submit">Send</button>
+</div>
+</form>
+</div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script>
+// Form functions
+let selectedCategory = "";
+function showForm(category) {
+selectedCategory = category;
+document.getElementById("form-category").textContent = category;
+document.getElementById("category-field").value = category;
+document.getElementById("contact-form").classList.add("active");
+// Remove current object from scene
+if (currentObject) {
+scene.remove(currentObject);
+}
+// Switch 3D object based on category and position to the left
+if (category === "Tech") {
+scene.add(computer);
+currentObject = computer;
+computer.position.x = -3; // Move to left
+} else if (category === "Sales") {
+scene.add(briefcase);
+currentObject = briefcase;
+briefcase.position.x = -3; // Move to left
+} else if (category === "Support") {
+scene.add(headset);
+currentObject = headset;
+headset.position.x = -3; // Move to left
+}
+}
+function hideForm() {
+document.getElementById("contact-form").classList.remove("active");
+document.getElementById("need").value = "";
+document.getElementById("name").value = "";
+document.getElementById("contact").value = "";
+// Return to spheres when closing form
+if (currentObject !== spheres) {
+scene.remove(currentObject);
+// Reset positions
+computer.position.x = 0;
+briefcase.position.x = 0;
+headset.position.x = 0;
+scene.add(spheres);
+currentObject = spheres;
+}
+}
+// Optimized code background
+const codeSnippets = [
+"function animate() { requestAnimationFrame(animate); }",
+"const sphere = new THREE.Mesh(geometry, material);",
+"vec3 position = normalize(vPosition);",
+"renderer.render(scene, camera);",
+'geometry.setAttribute("position", vertices);',
+"const clock = new THREE.Clock();",
+"material.wireframe = true;",
+"scene.add(mesh);",
+"camera.position.z = 15;",
+"rotation.y += 0.002;",
+"gl_Position = projectionMatrix * mvPosition;",
+"const raycaster = new THREE.Raycaster();",
+"if (intersects.length > 0) return true;",
+"mesh.rotation.x += deltaTime;",
+"const quaternion = new THREE.Quaternion();",
+"uniforms.time.value = clock.getElapsedTime();",
+"const matrix = new THREE.Matrix4();",
+"vec4 mvPosition = modelViewMatrix * vec4(pos, 1.0);",
+"float intensity = dot(normal, lightDirection);",
+"requestAnimationFrame(render);",
+];
+function createCodeBackground() {
+const container = document.getElementById("codeBackground");
+const columnCount = Math.floor(window.innerWidth / 250) + 1;
+for (let col = 0; col < columnCount; col++) {
+const column = document.createElement("div");
+column.className = "codeColumn";
+column.style.left = `${col * 250}px`;
+column.style.animationDuration = `${40 + Math.random() * 20}s`;
+column.style.animationDelay = `${Math.random() * 10}s`;
+for (let set = 0; set < 2; set++) {
+for (let i = 0; i < 25; i++) {
+const line = document.createElement("div");
+line.className = "codeLine";
+line.textContent =
+codeSnippets[Math.floor(Math.random() * codeSnippets.length)];
+column.appendChild(line);
+}
+}
+container.appendChild(column);
+}
+}
+createCodeBackground();
+// Three.js scene
+let scene, camera, renderer;
+let spheres, computer, briefcase, headset, currentObject;
+let targetRotation = { x: 0, y: 0 };
+let currentRotation = { x: 0, y: 0 };
+let isDragging = false;
+let previousMousePosition = { x: 0, y: 0 };
+function createSpheres() {
+const spheresGroup = new THREE.Group();
+// Create inner wireframe sphere
+const innerGeometry = new THREE.SphereGeometry(3, 16, 12);
+const innerMaterial = new THREE.MeshBasicMaterial({
+color: 0xffffff,
+wireframe: true,
+transparent: true,
+opacity: 0.7,
+});
+const innerSphere = new THREE.Mesh(innerGeometry, innerMaterial);
+spheresGroup.add(innerSphere);
+// Create outer wireframe sphere
+const outerGeometry = new THREE.SphereGeometry(4.5, 20, 14);
+const outerMaterial = new THREE.MeshBasicMaterial({
+color: 0xffffff,
+wireframe: true,
+transparent: true,
+opacity: 0.3,
+});
+const outerSphere = new THREE.Mesh(outerGeometry, outerMaterial);
+spheresGroup.add(outerSphere);
+return spheresGroup;
+}
+function createRomanBridge() {
+const bridgeGroup = new THREE.Group();
+const archCount = 6;
+const archWidth = 3;
+const archHeight = 2.5;
+const pierWidth = 0.8;
+const pierHeight = 3;
+const bridgeDepth = 1.5;
+const spacing = archWidth + pierWidth;
+const material = new THREE.LineBasicMaterial({
+color: 0xffffff,
+transparent: true,
+opacity: 0.8,
+});
+// Create arches and piers
+for (let i = 0; i < archCount; i++) {
+const xPos = (i - archCount / 2 + 0.5) * spacing;
+// Create arch (semi-circle)
+const archCurve = new THREE.EllipseCurve(
+xPos,
+-pierHeight / 2,
+archWidth / 2,
+archHeight,
+0,
+Math.PI,
+false,
+0
+);
+const archPoints = archCurve.getPoints(30);
+const archGeometry = new THREE.BufferGeometry().setFromPoints(
+archPoints
+);
+const arch = new THREE.Line(archGeometry, material);
+bridgeGroup.add(arch);
+// Create depth lines for arch
+const archDepthGeometry = new THREE.BufferGeometry();
+const depthVertices = [];
+for (let j = 0; j < archPoints.length; j++) {
+depthVertices.push(
+archPoints[j].x,
+archPoints[j].y,
+-bridgeDepth / 2
+);
+depthVertices.push(
+archPoints[j].x,
+archPoints[j].y,
+bridgeDepth / 2
+);
+}
+archDepthGeometry.setAttribute(
+"position",
+new THREE.Float32BufferAttribute(depthVertices, 3)
+);
+const archDepthLines = new THREE.LineSegments(
+archDepthGeometry,
+material
+);
+bridgeGroup.add(archDepthLines);
+// Create back arch
+const backArch = arch.clone();
+backArch.position.z = bridgeDepth;
+bridgeGroup.add(backArch);
+// Create piers (rectangular supports)
+if (i < archCount - 1) {
+const pierGeometry = new THREE.BoxGeometry(
+pierWidth,
+pierHeight,
+bridgeDepth
+);
+const pierEdges = new THREE.EdgesGeometry(pierGeometry);
+const pier = new THREE.LineSegments(pierEdges, material);
+pier.position.x = xPos + archWidth / 2 + pierWidth / 2;
+pier.position.y = -pierHeight / 2;
+bridgeGroup.add(pier);
+}
+}
+// Create side piers
+const sidePierLeft = new THREE.BoxGeometry(
+pierWidth,
+pierHeight,
+bridgeDepth
+);
+const sidePierLeftEdges = new THREE.EdgesGeometry(sidePierLeft);
+const leftPier = new THREE.LineSegments(sidePierLeftEdges, material);
+leftPier.position.x = (-archCount / 2) * spacing - pierWidth / 2;
+leftPier.position.y = -pierHeight / 2;
+bridgeGroup.add(leftPier);
+const rightPier = leftPier.clone();
+rightPier.position.x = (archCount / 2) * spacing + pierWidth / 2;
+bridgeGroup.add(rightPier);
+// Create deck/roadway on top
+const deckLength = archCount * spacing + pierWidth * 2;
+const deckGeometry = new THREE.BoxGeometry(
+deckLength,
+0.3,
+bridgeDepth
+);
+const deckEdges = new THREE.EdgesGeometry(deckGeometry);
+const deck = new THREE.LineSegments(deckEdges, material);
+deck.position.y = archHeight - pierHeight / 2 + 0.15;
+bridgeGroup.add(deck);
+// Create deck surface lines
+const deckLinesGeometry = new THREE.BufferGeometry();
+const deckVertices = [];
+const lineCount = 10;
+for (let i = 0; i <= lineCount; i++) {
+const x = -deckLength / 2 + (deckLength / lineCount) * i;
+deckVertices.push(
+x,
+archHeight - pierHeight / 2 + 0.3,
+-bridgeDepth / 2
+);
+deckVertices.push(
+x,
+archHeight - pierHeight / 2 + 0.3,
+bridgeDepth / 2
+);
+}
+deckLinesGeometry.setAttribute(
+"position",
+new THREE.Float32BufferAttribute(deckVertices, 3)
+);
+const deckLines = new THREE.LineSegments(deckLinesGeometry, material);
+bridgeGroup.add(deckLines);
+// Create railings
+const railingHeight = 0.5;
+const railingGeometry = new THREE.BufferGeometry();
+const railingVertices = [];
+// Front railing
+for (let i = 0; i <= lineCount; i++) {
+const x = -deckLength / 2 + (deckLength / lineCount) * i;
+railingVertices.push(
+x,
+archHeight - pierHeight / 2 + 0.3,
+-bridgeDepth / 2
+);
+railingVertices.push(
+x,
+archHeight - pierHeight / 2 + 0.3 + railingHeight,
+-bridgeDepth / 2
+);
+}
+// Back railing
+for (let i = 0; i <= lineCount; i++) {
+const x = -deckLength / 2 + (deckLength / lineCount) * i;
+railingVertices.push(
+x,
+archHeight - pierHeight / 2 + 0.3,
+bridgeDepth / 2
+);
+railingVertices.push(
+x,
+archHeight - pierHeight / 2 + 0.3 + railingHeight,
+bridgeDepth / 2
+);
+}
+railingGeometry.setAttribute(
+"position",
+new THREE.Float32BufferAttribute(railingVertices, 3)
+);
+const railings = new THREE.LineSegments(railingGeometry, material);
+bridgeGroup.add(railings);
+// Add horizontal railing lines
+const railTopGeometry = new THREE.BufferGeometry();
+const railTopVertices = [
+-deckLength / 2,
+archHeight - pierHeight / 2 + 0.3 + railingHeight,
+-bridgeDepth / 2,
+deckLength / 2,
+archHeight - pierHeight / 2 + 0.3 + railingHeight,
+-bridgeDepth / 2,
+-deckLength / 2,
+archHeight - pierHeight / 2 + 0.3 + railingHeight,
+bridgeDepth / 2,
+deckLength / 2,
+archHeight - pierHeight / 2 + 0.3 + railingHeight,
+bridgeDepth / 2,
+];
+railTopGeometry.setAttribute(
+"position",
+new THREE.Float32BufferAttribute(railTopVertices, 3)
+);
+const railTop = new THREE.LineSegments(railTopGeometry, material);
+bridgeGroup.add(railTop);
+return bridgeGroup;
+}
+function createComputer() {
+const computerGroup = new THREE.Group();
+const material = new THREE.LineBasicMaterial({
+color: 0xffffff,
+transparent: true,
+opacity: 0.8,
+});
+// Create monitor
+const monitorWidth = 6;
+const monitorHeight = 4;
+const monitorDepth = 0.3;
+// Monitor screen
+const screenGeometry = new THREE.BoxGeometry(
+monitorWidth,
+monitorHeight,
+monitorDepth
+);
+const screenEdges = new THREE.EdgesGeometry(screenGeometry);
+const screen = new THREE.LineSegments(screenEdges, material);
+screen.position.y = 2;
+computerGroup.add(screen);
+// Add screen detail lines (grid pattern)
+const gridGeometry = new THREE.BufferGeometry();
+const gridVertices = [];
+const gridLines = 8;
+// Horizontal lines
+for (let i = 1; i < gridLines; i++) {
+const y = 2 - monitorHeight / 2 + (monitorHeight / gridLines) * i;
+gridVertices.push(
+-monitorWidth / 2 + 0.1,
+y,
+-monitorDepth / 2 - 0.01
+);
+gridVertices.push(
+monitorWidth / 2 - 0.1,
+y,
+-monitorDepth / 2 - 0.01
+);
+}
+// Vertical lines
+for (let i = 1; i < gridLines; i++) {
+const x = -monitorWidth / 2 + (monitorWidth / gridLines) * i;
+gridVertices.push(
+x,
+2 + monitorHeight / 2 - 0.1,
+-monitorDepth / 2 - 0.01
+);
+gridVertices.push(
+x,
+2 - monitorHeight / 2 + 0.1,
+-monitorDepth / 2 - 0.01
+);
+}
+gridGeometry.setAttribute(
+"position",
+new THREE.Float32BufferAttribute(gridVertices, 3)
+);
+const gridLines3D = new THREE.LineSegments(gridGeometry, material);
+computerGroup.add(gridLines3D);
+// Monitor stand neck
+const neckGeometry = new THREE.BoxGeometry(0.5, 1.5, 0.3);
+const neckEdges = new THREE.EdgesGeometry(neckGeometry);
+const neck = new THREE.LineSegments(neckEdges, material);
+neck.position.y = -0.5;
+computerGroup.add(neck);
+// Monitor base
+const baseGeometry = new THREE.BoxGeometry(3, 0.2, 2);
+const baseEdges = new THREE.EdgesGeometry(baseGeometry);
+const base = new THREE.LineSegments(baseEdges, material);
+base.position.y = -1.5;
+computerGroup.add(base);
+// Create keyboard
+const keyboardWidth = 5;
+const keyboardHeight = 0.2;
+const keyboardDepth = 2;
+const keyboardGeometry = new THREE.BoxGeometry(
+keyboardWidth,
+keyboardHeight,
+keyboardDepth
+);
+const keyboardEdges = new THREE.EdgesGeometry(keyboardGeometry);
+const keyboard = new THREE.LineSegments(keyboardEdges, material);
+keyboard.position.y = -1.5;
+keyboard.position.z = 2.5;
+keyboard.rotation.x = -0.1;
+computerGroup.add(keyboard);
+// Add keyboard keys (grid)
+const keysGeometry = new THREE.BufferGeometry();
+const keysVertices = [];
+const keyRows = 5;
+const keyCols = 12;
+for (let i = 1; i < keyRows; i++) {
+const z = 2.5 - keyboardDepth / 2 + (keyboardDepth / keyRows) * i;
+keysVertices.push(-keyboardWidth / 2 + 0.1, -1.4, z);
+keysVertices.push(keyboardWidth / 2 - 0.1, -1.4, z);
+}
+for (let i = 1; i < keyCols; i++) {
+const x = -keyboardWidth / 2 + (keyboardWidth / keyCols) * i;
+keysVertices.push(x, -1.4, 2.5 - keyboardDepth / 2 + 0.1);
+keysVertices.push(x, -1.4, 2.5 + keyboardDepth / 2 - 0.1);
+}
+keysGeometry.setAttribute(
+"position",
+new THREE.Float32BufferAttribute(keysVertices, 3)
+);
+const keys = new THREE.LineSegments(keysGeometry, material);
+computerGroup.add(keys);
+// Create mouse
+const mouseGeometry = new THREE.BoxGeometry(0.6, 0.1, 1);
+const mouseEdges = new THREE.EdgesGeometry(mouseGeometry);
+const mouse = new THREE.LineSegments(mouseEdges, material);
+mouse.position.y = -1.5;
+mouse.position.x = 4;
+mouse.position.z = 2.5;
+computerGroup.add(mouse);
+// Add CPU tower (optional, on the side)
+const towerWidth = 1.5;
+const towerHeight = 4;
+const towerDepth = 2;
+const towerGeometry = new THREE.BoxGeometry(
+towerWidth,
+towerHeight,
+towerDepth
+);
+const towerEdges = new THREE.EdgesGeometry(towerGeometry);
+const tower = new THREE.LineSegments(towerEdges, material);
+tower.position.x = -5;
+tower.position.y = 0.5;
+computerGroup.add(tower);
+// Add some detail lines on tower
+const towerDetailGeometry = new THREE.BufferGeometry();
+const towerDetailVertices = [];
+// Front panel lines
+for (let i = 1; i <= 3; i++) {
+const y = 2.5 - i * 0.5;
+towerDetailVertices.push(
+-5 - towerWidth / 2 + 0.1,
+y,
+-towerDepth / 2 - 0.01
+);
+towerDetailVertices.push(
+-5 + towerWidth / 2 - 0.1,
+y,
+-towerDepth / 2 - 0.01
+);
+}
+towerDetailGeometry.setAttribute(
+"position",
+new THREE.Float32BufferAttribute(towerDetailVertices, 3)
+);
+const towerDetails = new THREE.LineSegments(
+towerDetailGeometry,
+material
+);
+computerGroup.add(towerDetails);
+return computerGroup;
+}
+function createBriefcase() {
+const briefcaseGroup = new THREE.Group();
+const material = new THREE.LineBasicMaterial({
+color: 0xffffff,
+transparent: true,
+opacity: 0.8,
+});
+// Main briefcase body
+const bodyWidth = 5;
+const bodyHeight = 3.5;
+const bodyDepth = 1.5;
+const bodyGeometry = new THREE.BoxGeometry(
+bodyWidth,
+bodyHeight,
+bodyDepth
+);
+const bodyEdges = new THREE.EdgesGeometry(bodyGeometry);
+const body = new THREE.LineSegments(bodyEdges, material);
+briefcaseGroup.add(body);
+// Add center dividing line
+const dividerGeometry = new THREE.BufferGeometry();
+const dividerVertices = [
+-bodyWidth / 2,
+0,
+-bodyDepth / 2 - 0.01,
+bodyWidth / 2,
+0,
+-bodyDepth / 2 - 0.01,
+-bodyWidth / 2,
+0,
+bodyDepth / 2 + 0.01,
+bodyWidth / 2,
+0,
+bodyDepth / 2 + 0.01,
+];
+dividerGeometry.setAttribute(
+"position",
+new THREE.Float32BufferAttribute(dividerVertices, 3)
+);
+const divider = new THREE.LineSegments(dividerGeometry, material);
+briefcaseGroup.add(divider);
+// Handle
+const handleCurve = new THREE.CatmullRomCurve3([
+new THREE.Vector3(-1.5, bodyHeight / 2, 0),
+new THREE.Vector3(-1.5, bodyHeight / 2 + 1, 0),
+new THREE.Vector3(0, bodyHeight / 2 + 1.2, 0),
+new THREE.Vector3(1.5, bodyHeight / 2 + 1, 0),
+new THREE.Vector3(1.5, bodyHeight / 2, 0),
+]);
+const handlePoints = handleCurve.getPoints(50);
+const handleGeometry = new THREE.BufferGeometry().setFromPoints(
+handlePoints
+);
+const handle = new THREE.Line(handleGeometry, material);
+briefcaseGroup.add(handle);
+// Handle depth
+const handleDepthGeometry = new THREE.BufferGeometry();
+const handleDepthVertices = [];
+for (let i = 0; i < handlePoints.length; i += 5) {
+handleDepthVertices.push(handlePoints[i].x, handlePoints[i].y, -0.2);
+handleDepthVertices.push(handlePoints[i].x, handlePoints[i].y, 0.2);
+}
+handleDepthGeometry.setAttribute(
+"position",
+new THREE.Float32BufferAttribute(handleDepthVertices, 3)
+);
+const handleDepth = new THREE.LineSegments(
+handleDepthGeometry,
+material
+);
+briefcaseGroup.add(handleDepth);
+// Locks/latches
+const lockGeometry = new THREE.BoxGeometry(0.6, 0.3, 0.2);
+const lockEdges = new THREE.EdgesGeometry(lockGeometry);
+const lock1 = new THREE.LineSegments(lockEdges, material);
+lock1.position.set(-1, 0, -bodyDepth / 2 - 0.1);
+briefcaseGroup.add(lock1);
+const lock2 = lock1.clone();
+lock2.position.set(1, 0, -bodyDepth / 2 - 0.1);
+briefcaseGroup.add(lock2);
+// Corner reinforcements
+const cornerSize = 0.3;
+const cornerGeometry = new THREE.BufferGeometry();
+const cornerVertices = [];
+// Top left corner
+cornerVertices.push(
+-bodyWidth / 2,
+bodyHeight / 2 - cornerSize,
+-bodyDepth / 2 - 0.01
+);
+cornerVertices.push(
+-bodyWidth / 2,
+bodyHeight / 2,
+-bodyDepth / 2 - 0.01
+);
+cornerVertices.push(
+-bodyWidth / 2 + cornerSize,
+bodyHeight / 2,
+-bodyDepth / 2 - 0.01
+);
+// Top right corner
+cornerVertices.push(
+bodyWidth / 2 - cornerSize,
+bodyHeight / 2,
+-bodyDepth / 2 - 0.01
+);
+cornerVertices.push(
+bodyWidth / 2,
+bodyHeight / 2,
+-bodyDepth / 2 - 0.01
+);
+cornerVertices.push(
+bodyWidth / 2,
+bodyHeight / 2 - cornerSize,
+-bodyDepth / 2 - 0.01
+);
+// Bottom left corner
+cornerVertices.push(
+-bodyWidth / 2,
+-bodyHeight / 2 + cornerSize,
+-bodyDepth / 2 - 0.01
+);
+cornerVertices.push(
+-bodyWidth / 2,
+-bodyHeight / 2,
+-bodyDepth / 2 - 0.01
+);
+cornerVertices.push(
+-bodyWidth / 2 + cornerSize,
+-bodyHeight / 2,
+-bodyDepth / 2 - 0.01
+);
+// Bottom right corner
+cornerVertices.push(
+bodyWidth / 2 - cornerSize,
+-bodyHeight / 2,
+-bodyDepth / 2 - 0.01
+);
+cornerVertices.push(
+bodyWidth / 2,
+-bodyHeight / 2,
+-bodyDepth / 2 - 0.01
+);
+cornerVertices.push(
+bodyWidth / 2,
+-bodyHeight / 2 + cornerSize,
+-bodyDepth / 2 - 0.01
+);
+cornerGeometry.setAttribute(
+"position",
+new THREE.Float32BufferAttribute(cornerVertices, 3)
+);
+const corners = new THREE.Line(cornerGeometry, material);
+briefcaseGroup.add(corners);
+return briefcaseGroup;
+}
+function createHeadset() {
+const headsetGroup = new THREE.Group();
+const material = new THREE.LineBasicMaterial({
+color: 0xffffff,
+transparent: true,
+opacity: 0.8,
+});
+// Headband (arc)
+const headbandCurve = new THREE.CatmullRomCurve3([
+new THREE.Vector3(-2.5, 0, 0),
+new THREE.Vector3(-2.5, 2, 0),
+new THREE.Vector3(-1.5, 3, 0),
+new THREE.Vector3(0, 3.2, 0),
+new THREE.Vector3(1.5, 3, 0),
+new THREE.Vector3(2.5, 2, 0),
+new THREE.Vector3(2.5, 0, 0),
+]);
+const headbandPoints = headbandCurve.getPoints(50);
+const headbandGeometry = new THREE.BufferGeometry().setFromPoints(
+headbandPoints
+);
+const headband = new THREE.Line(headbandGeometry, material);
+headsetGroup.add(headband);
+// Headband thickness lines
+const bandThicknessGeometry = new THREE.BufferGeometry();
+const bandVertices = [];
+for (let i = 0; i < headbandPoints.length; i += 5) {
+bandVertices.push(headbandPoints[i].x, headbandPoints[i].y, -0.3);
+bandVertices.push(headbandPoints[i].x, headbandPoints[i].y, 0.3);
+}
+bandThicknessGeometry.setAttribute(
+"position",
+new THREE.Float32BufferAttribute(bandVertices, 3)
+);
+const bandThickness = new THREE.LineSegments(
+bandThicknessGeometry,
+material
+);
+headsetGroup.add(bandThickness);
+// Left ear cup
+const earCupRadius = 1;
+const leftEarGeometry = new THREE.CylinderGeometry(
+earCupRadius,
+earCupRadius,
+0.5,
+16
+);
+const leftEarEdges = new THREE.EdgesGeometry(leftEarGeometry);
+const leftEar = new THREE.LineSegments(leftEarEdges, material);
+leftEar.position.set(-2.5, 0, 0);
+leftEar.rotation.z = Math.PI / 2;
+headsetGroup.add(leftEar);
+// Right ear cup
+const rightEar = leftEar.clone();
+rightEar.position.set(2.5, 0, 0);
+headsetGroup.add(rightEar);
+// Ear cushion details (circles)
+const cushionGeometry = new THREE.CircleGeometry(0.7, 12);
+const cushionEdges = new THREE.EdgesGeometry(cushionGeometry);
+const leftCushion = new THREE.LineSegments(cushionEdges, material);
+leftCushion.position.set(-3, 0, 0);
+leftCushion.rotation.y = Math.PI / 2;
+headsetGroup.add(leftCushion);
+const rightCushion = leftCushion.clone();
+rightCushion.position.set(3, 0, 0);
+headsetGroup.add(rightCushion);
+// Microphone arm
+const micArmCurve = new THREE.CatmullRomCurve3([
+new THREE.Vector3(-2.5, -0.5, 0),
+new THREE.Vector3(-2.5, -0.5, 1),
+new THREE.Vector3(-2, -1, 2),
+new THREE.Vector3(-1, -1.5, 2.5),
+]);
+const micArmPoints = micArmCurve.getPoints(30);
+const micArmGeometry = new THREE.BufferGeometry().setFromPoints(
+micArmPoints
+);
+const micArm = new THREE.Line(micArmGeometry, material);
+headsetGroup.add(micArm);
+// Microphone head
+const micGeometry = new THREE.CylinderGeometry(0.2, 0.3, 0.6, 8);
+const micEdges = new THREE.EdgesGeometry(micGeometry);
+const mic = new THREE.LineSegments(micEdges, material);
+mic.position.set(-1, -1.5, 2.5);
+mic.rotation.x = Math.PI / 2;
+headsetGroup.add(mic);
+// Cable from one ear
+const cableCurve = new THREE.CatmullRomCurve3([
+new THREE.Vector3(2.5, -1, 0),
+new THREE.Vector3(2.5, -2, 0.2),
+new THREE.Vector3(2.3, -3, 0.3),
+new THREE.Vector3(2, -4, 0.3),
+new THREE.Vector3(1.5, -5, 0.3),
+]);
+const cablePoints = cableCurve.getPoints(20);
+const cableGeometry = new THREE.BufferGeometry().setFromPoints(
+cablePoints
+);
+const cable = new THREE.Line(cableGeometry, material);
+headsetGroup.add(cable);
+return headsetGroup;
+}
+function init() {
+// Scene setup
+scene = new THREE.Scene();
+scene.background = new THREE.Color(0x000000);
+// Camera setup
+camera = new THREE.PerspectiveCamera(
+50,
+window.innerWidth / window.innerHeight,
+0.1,
+1000
+);
+camera.position.set(0, -5, 18);
+camera.lookAt(0, -5, 0);
+// Renderer setup with performance optimizations
+renderer = new THREE.WebGLRenderer({
+antialias: true,
+powerPreference: "high-performance",
+});
+renderer.setSize(window.innerWidth, window.innerHeight);
+renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.5));
+document.body.appendChild(renderer.domElement);
+// Create spheres (default object)
+spheres = createSpheres();
+spheres.position.y = -5;
+scene.add(spheres);
+currentObject = spheres;
+// Create computer but don't add to scene yet
+computer = createComputer();
+computer.position.y = -4;
+// Create briefcase but don't add to scene yet
+briefcase = createBriefcase();
+briefcase.position.y = -4;
+briefcase.scale.set(1.2, 1.2, 1.2);
+// Create headset but don't add to scene yet
+headset = createHeadset();
+headset.position.y = -4;
+headset.scale.set(1.5, 1.5, 1.5);
+// Event listeners
+document.addEventListener("mousedown", onMouseDown);
+document.addEventListener("mouseup", onMouseUp);
+document.addEventListener("mousemove", onMouseMove);
+document.addEventListener("wheel", onMouseWheel);
+window.addEventListener("resize", onWindowResize);
+// Touch events
+document.addEventListener("touchstart", onTouchStart, {
+passive: false,
+});
+document.addEventListener("touchmove", onTouchMove, { passive: false });
+document.addEventListener("touchend", onTouchEnd);
+}
+function onMouseDown(event) {
+// Don't rotate if clicking on UI elements
+if (
+event.target.classList.contains("talent-btn") ||
+event.target.closest("#contact-form")
+) {
+return;
+}
+isDragging = true;
+previousMousePosition = {
+x: event.clientX,
+y: event.clientY,
+};
+}
+function onMouseUp() {
+isDragging = false;
+}
+function onMouseMove(event) {
+if (!isDragging) return;
+const deltaMove = {
+x: event.clientX - previousMousePosition.x,
+y: event.clientY - previousMousePosition.y,
+};
+targetRotation.y += deltaMove.x * 0.01;
+targetRotation.x += deltaMove.y * 0.01;
+previousMousePosition = {
+x: event.clientX,
+y: event.clientY,
+};
+}
+function onTouchStart(event) {
+if (
+event.target.classList.contains("talent-btn") ||
+event.target.closest("#contact-form")
+) {
+return;
+}
+if (event.touches.length === 1) {
+isDragging = true;
+previousMousePosition = {
+x: event.touches[0].clientX,
+y: event.touches[0].clientY,
+};
+}
+event.preventDefault();
+}
+function onTouchMove(event) {
+if (!isDragging || event.touches.length !== 1) return;
+const deltaMove = {
+x: event.touches[0].clientX - previousMousePosition.x,
+y: event.touches[0].clientY - previousMousePosition.y,
+};
+targetRotation.y += deltaMove.x * 0.01;
+targetRotation.x += deltaMove.y * 0.01;
+previousMousePosition = {
+x: event.touches[0].clientX,
+y: event.touches[0].clientY,
+};
+event.preventDefault();
+}
+function onTouchEnd() {
+isDragging = false;
+}
+function onMouseWheel(event) {
+event.preventDefault();
+const delta = event.deltaY * 0.002;
+camera.position.z = Math.min(
+Math.max(camera.position.z + delta, 8),
+30
+);
+}
+function onWindowResize() {
+camera.aspect = window.innerWidth / window.innerHeight;
+camera.updateProjectionMatrix();
+renderer.setSize(window.innerWidth, window.innerHeight);
+}
+function animate() {
+requestAnimationFrame(animate);
+// Smooth rotation with optimized interpolation
+const lerpFactor = 0.08;
+currentRotation.x +=
+(targetRotation.x - currentRotation.x) * lerpFactor;
+currentRotation.y +=
+(targetRotation.y - currentRotation.y) * lerpFactor;
+// Auto-rotation when not dragging
+if (!isDragging) {
+targetRotation.x += 0.001;
+targetRotation.y += 0.002;
+}
+// Apply rotation to current object
+if (currentObject === spheres) {
+// Different rotation speeds for inner and outer spheres
+if (spheres.children[0]) {
+spheres.children[0].rotation.x = currentRotation.x;
+spheres.children[0].rotation.y = currentRotation.y;
+}
+if (spheres.children[1]) {
+spheres.children[1].rotation.x = currentRotation.x * 0.7;
+spheres.children[1].rotation.y = currentRotation.y * 1.3;
+}
+} else if (currentObject) {
+currentObject.rotation.x = currentRotation.x;
+currentObject.rotation.y = currentRotation.y;
+}
+renderer.render(scene, camera);
+}
+// Initialize and start
+init();
+animate();
+</script>
+</body>
 </html>
